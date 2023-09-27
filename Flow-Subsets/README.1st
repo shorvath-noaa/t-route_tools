@@ -1,0 +1,56 @@
+Polygon-Windowing project. First checkin: 21-Sep-2023.
+
+1) Brief description: the Flow-Subsets project is a collection of routines along with a workflow to enable efficient geopackage subsetting for vector layers with and without geometry features. It comprises part of the t-route subsetting effort and is based on the extraction of flow networks that overlap with a smaller geopackage that is a subset of a larger geopackage, wherein the flow networks are ranked by their overlap. coordinates are presently hardcoded to EPSG:5070 - NAD83 / Conus Albers, please submit request if other coordinate system options are needed
+
+2) Environment and dependencies:
+
+The code relies on QGIS and was developed to run in the Python environment built into QGIS 3.32.1 (Lima) on a Windows 11 environment. However, we do not anticipate problems running in any QGIS 3 installation. The project also relies on the following Python packages (in addition to preinstalled ones) which can be installed as described in 3:
+
+    	 - toolz
+	 - deprecated
+	 - netCDF4
+	 - joblib
+	 - xarray
+	 - pyarrow
+	 - importlib
+	 - random
+	 
+
+3) Installation and setup:
+
+- Install QGIS or upgrade to QGIS 3.X. 
+
+- Run the OSGeo4W Shell packaged with QGIS (in a Windows environment, type "OSGeo4W" in the search bar).
+
+- Install the following Python packages (LIBRARY to be replaced by all the Python packages listed in 2):
+
+  	  > python -m pip install LIBRARY
+
+- If subsequent running of the code (section 4) generates any errors of missing Python packages, please install these in OSGeo4W using the "python -m pip ..." command.
+
+4) Code execution:
+
+- Check out or download the repository and place it in a folder of your choice, e.g. "Flow-Subsets". There are two folders, "src" and "models", along with this file, in the newly created folder. 
+
+- Open QGIS and start the Python interpreter (a blue/white cross symbol on the upper right hand side of the QGIS GUI, but the location mat differ in your distribution).
+
+- In the newly opened Python command line Console window, click the "Show Editor" button above the Console, which opens a text editor.
+
+- In the latter text editor, click the "Open File" symbol (folder symbol) and navigate to the directory with the downloaded folders.
+
+- Within the "src" directory, open "FlowSubsetExample.py" by double-clicking. Change the following directory paths according to your environment:
+
+  	 - bigConfigFile = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/bigConfigFile.yaml"
+	 - smallConfigFile = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/smallConfigFile.yaml"
+	 - outpath_build = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/CapeCod_Flows.gpkg"
+	 
+	 and save the file (disk symbol)
+
+- In the QGIS Python text editor again, click the "Open File" symbol and navigate to the directory with the downloaded folders, go to the "models" directory and open "bigConfigFile.yaml" by double-clicking.
+
+- In the .yaml file, change the file paths to reflect the position of the geopackage file in your file system and save the file (disk symbol).
+
+- Repeat the last two steps for "smallConfigFile.yaml.
+	 
+- In the Python text editor again, navigate to the tab with the "FlowSubsetExample.py" file and run the code by clicking the "Run" button (green arrow). An example set of outputs was prepackaged (see content of in "models") for illustration.
+
