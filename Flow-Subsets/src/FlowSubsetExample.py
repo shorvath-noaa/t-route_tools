@@ -40,11 +40,11 @@ reload(networks_QGIS)
 from networks_QGIS import *
 
 # define paths:
-bigConfigFile = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/bigConfigFile.yaml"
-smallConfigFile = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/smallConfigFile.yaml"
+bigConfigFile = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets-CapeCode-2/models/bigConfigFile.yaml"
+smallConfigFile = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets-CapeCode-2/models/smallConfigFile.yaml"
 
 # define output file
-outpath_build = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/CapeCod_Flows.gpkg"
+outpath_build = "C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets-CapeCode-2/models/CapeCod_Flows.gpkg"
 nameBase = outpath_build.split('.')[0]
 nameExtension = outpath_build.split('.')[1]
 nameCheck = nameBase+'_rank_1.'+nameExtension

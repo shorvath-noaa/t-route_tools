@@ -10,7 +10,7 @@ network_topology_parameters:
     supernetwork_parameters:
         #----------
         geo_file_type: HYFeaturesNetwork  #NHDNetwork 
-        geo_file_path: C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/CapeCodSmall.gpkg
+        geo_file_path: C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets-CapeCode-2/models/CapeCodSmall.gpkg
         columns: 
             key: 'id'
             downstream: 'toid'
@@ -74,9 +74,9 @@ network_topology_parameters:
         break_network_at_waterbodies: True
         level_pool:
             #----------
-            level_pool_waterbody_parameter_file_path: C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/CapeCodSmall.gpkg
+            level_pool_waterbody_parameter_file_path: C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets-CapeCode-2/models/CapeCodSmall.gpkg
             #NOT THIS: domain/LAKEPARM.nc 
-            #reservoir_parameter_file                : C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets/models/CapeCodSmall.gpkg
+            #reservoir_parameter_file                : C:/Users/JurgenZach/Documents/Geomodels/Flow-Subsets-CapeCode-2/models/CapeCodSmall.gpkg
         #rfc:
             #----------
             #reservoir_parameter_file                : domain/reservoir_index_AnA.nc
