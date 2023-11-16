@@ -336,8 +336,8 @@ def overlap_N_largest (segBucketOverlap, N):
         
     return overlap, overlapIndex
 
-
-
+    
+    
 # build up a geopackage from a list of flowpath segment IDs
 # (generally, connected network from one or more segments)
 def one_net_build (root, group, supernetwork_parameters_SMALL, \
@@ -380,15 +380,31 @@ def one_net_build (root, group, supernetwork_parameters_SMALL, \
     global_layer = QgsVectorLayer(small_copy,"test","ogr")
     sub_layers =global_layer.dataProvider().subLayers()
 
+    print(sub_layers)
+    
+    print(sub_layers.sort())
+    
+    # sorting such that nework layer is first
+    resortedLayers = []
+    for subLayer in sub_layers:
+        name = subLayer.split('!!::!!')[1]
+        if (name=='network'):
+            resortedLayers.append(name)
+    for subLayer in sub_layers:
+        name = subLayer.split('!!::!!')[1]
+        if (name!='network'):
+            resortedLayers.append(name)
+    
+
     geo_big_path = supernetwork_parameters_BIG["geo_file_path"]
 
     # prepare iterating through sub-layers
     firstLayerWritten = 'False'    
 
-    for subLayer in sub_layers:
+    for name in resortedLayers:
         
         # open the sublayer of the "small" file
-        name = subLayer.split('!!::!!')[1]
+        #name = subLayer.split('!!::!!')[1]
         fileID_small = "%s|layername=%s" % (small_copy, name,)
         # Create layer
         sub_vlayer_small = QgsVectorLayer(fileID_small, name, 'ogr')
@@ -427,7 +443,7 @@ def one_net_build (root, group, supernetwork_parameters_SMALL, \
         featsList = list(feats)
         
         # Ascii file to save (integer) segment IDs of all "big" layers
-        file = open('big_id_list_'+name+'.dat','w')        
+        #file = open('big_id_list_'+name+'.dat','w')        
         
         print ('Sub=layer: ',subLayer)
         
@@ -442,27 +458,53 @@ def one_net_build (root, group, supernetwork_parameters_SMALL, \
             attrs = feat.attributes()
             
             if (name == 'hydrolocations'):
-                id_index = 6
+                id_index1 = 6
+                id_index2 = 6
+            elif (name == 'divides'):
+                id_index1 = 1
+                id_index2 = 1                
+            elif (name == 'flowpath_attributes'):
+                id_index1 = 1
+                id_index2 = 1
+            elif (name == 'network'):
+                id_index1 = 1
+                id_index2 = 2                
             else:
-                id_index = 1
+                id_index1 = 1
+                id_index2 = 2
 
             if (i%1000 == 0):                
                 print('i',i)
+                print('id index',id_index1, id_index2)
                 print()
             
-            if (attrs[id_index] != NULL):
+            if (attrs[id_index1] != NULL and attrs[id_index2] != NULL):
             
-                id = int(float(attrs[id_index].split('-')[-1]))
-                file.write(str(id)+" \n")
-                big_id_list.append(id)
-        
-                if (operator.contains(ID_net_list,id)):
+                id1 = int(float(attrs[id_index1].split('-')[-1]))
+                id2 = int(float(attrs[id_index2].split('-')[-1]))
+                #file.write(str(id1)+' '+str(id2)+" \n")
+
+                if (operator.contains(ID_net_list,id1)):
                     newLayer_data.addFeature(feat)
                     newLayer.updateExtents()
+                    
+                    if firstLayerWritten == 'False':
+                        big_id_list.append(id1)
+                        big_id_list.append(id2)                    
+                    
                     if (i%1000 == 0):                
-                        print('IN',id)
+                        print('IN',id1,id2)
                         print()
     
+
+        # get unique values from "from" and "to" IDs in network layer
+        if (firstLayerWritten == 'False'): 
+            big_id_set = set(big_id_list)
+            ID_net_list_0 = ID_net_list.copy()
+            ID_net_list = list(big_id_set)
+            
+            print('len(ID_net_list_0)', len(ID_net_list_0))
+            print('len(ID_net_list)', len(ID_net_list))
 
         if (firstLayerWritten == 'False'):
             overWriteFlag = 'True'
@@ -478,9 +520,9 @@ def one_net_build (root, group, supernetwork_parameters_SMALL, \
 
         processing.run("native:package", {'LAYERS':newLayer,'OUTPUT':outpath_build,'OVERWRITE':overWriteFlag,'SAVE_STYLES':True,'SAVE_METADATA':True})
 
-        file.close()
+        #file.close()
     
-
+    
     
 
 
