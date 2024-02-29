@@ -163,6 +163,7 @@ def usgsAsciiCrawl(fileName, gageList):
     timeBins = []
     stationLists = []
     flowLists = []
+    timeLists = []
     countFound = 0
     foundList = []
 
@@ -201,25 +202,48 @@ def usgsAsciiCrawl(fileName, gageList):
 
                 disChrgFloat = float(disChrgStr)*0.0283168 # conversion to cubic meters per sec from cubic feet
 
+                timeStamp = pd.to_datetime(timeStr1, format='%Y-%m-%d %H:%M')
+
+                minutes = timeStamp.minute
+                minutesMod15 = minutes%15
+                timeStampRound15 = timeStamp
+
+                # round filename to the nearest 15 minutes
+                if (minutesMod15 != 0):
+
+                    minutesLL = 15*int(minutes/15)
+                    timeStampRound15 = timeStampRound15.replace(minute=minutesLL)
+
+                    if (minutesMod15>=8):
+                        timeStampRound15 = timeStampRound15 + timedelta(minutes = 15)
+
+                timeStr_15 = timeStampRound15.strftime('%Y-%m-%d %H:%M:%S')
+
+                timeStr15_Split = timeStr_15.split(' ')
+                timeStr15_Str = timeStr15_Split[0]+'-'+(timeStr15_Split[1].replace(':',"-"))
+
                 timeStr1Split = timeStr1.split(' ')
-                timeStr2 = timeStr1Split[0]+'-'+(timeStr1Split[1].replace(':',"-"))
+                timeStr_Analog = timeStr1Split[0]+'-'+(timeStr1Split[1].replace(':',"-"))
 
-                if (timeStr2 in timeBins):
+                if (timeStr15_Str in timeBins):
 
-                    i = timeBins.index(timeStr2)
+                    i = timeBins.index(timeStr15_Str)
 
                     stationLists[i].append(idScan)
                     flowLists[i].append(disChrgFloat)
+                    timeLists[i].append(timeStr_Analog)
 
                 else:
 
-                    timeBins.append(timeStr2)
+                    timeBins.append(timeStr15_Str)
+                    timeLists.append([])
                     stationLists.append([])
                     flowLists.append([])
                     i = len(timeBins)
 
                     stationLists[i-1].append(idScan)
                     flowLists[i-1].append(disChrgFloat)
+                    timeLists[i-1].append(timeStr_Analog)
 
                 lc += 1
                 lineScan = lines[lc]
@@ -239,10 +263,10 @@ def usgsAsciiCrawl(fileName, gageList):
 
     print ('DONE WITH TIMESLICE COLLECTION')
 
-    return timeBins, stationLists, flowLists
+    return timeBins, stationLists, flowLists, timeLists
 
 
-def writeTimeSlices (ncFile, outFolder, timeBins, stationLists, flowLists, freqString):
+def writeTimeSlices (ncFile, outFolder, timeBins, stationLists, flowLists, timeLists, freqString):
 
     dsIn = xr.open_dataset(ncFile)
 
@@ -250,8 +274,7 @@ def writeTimeSlices (ncFile, outFolder, timeBins, stationLists, flowLists, freqS
 
     for timeBin in timeBins:
 
-        #timeStamp = pd.to_datetime(timeBin, format='%Y-%m-%d-%H-%M-%S')
-        timeStamp = pd.to_datetime(timeBin, format='%Y-%m-%d-%H-%M')
+        timeStamp = pd.to_datetime(timeBin, format='%Y-%m-%d-%H-%M-%S')
 
         timeBinFull = timeStamp.strftime('%Y-%m-%d_%H:%M:%S')
         timeBinFullFileName = timeStamp.strftime('%Y-%m-%d_%H:%M:%S')
@@ -267,7 +290,10 @@ def writeTimeSlices (ncFile, outFolder, timeBins, stationLists, flowLists, freqS
 
         for j in range(nStations):
 
-            ds.time.values[j] = timeBinFullByte
+            timeEntryStamp = pd.to_datetime(timeLists[i][j], format='%Y-%m-%d-%H-%M')
+            timeEntryFull = timeEntryStamp.strftime('%Y-%m-%d_%H:%M:%S')
+            timeEntryFullByte = timeEntryFull.encode('utf8')
+            ds.time.values[j] = timeEntryFullByte
             ds.stationId.values[j] = stationLists[i][j].rjust(15)
             ds.discharge.values[j] = np.float32(flowLists[i][j])
             ds.discharge_quality[j] = 100
@@ -282,13 +308,12 @@ def main():
 
     ncFile = script_dir+'/2020-07-25_00_00_00.15min.usgsTimeSlice.ncdf'
     usgsAsciiFile = script_dir+'/usgs_Ike.dat'
-
     freq = '15min'
     outFolder = script_dir+'/output'
 
     gageList = getGageIDs(ncFile)
-    timeBins, stationLists, flowLists = usgsAsciiCrawl(usgsAsciiFile, gageList)
-    writeTimeSlices (ncFile, outFolder, timeBins, stationLists, flowLists, freq)
+    timeBins, stationLists, flowLists, timeLists = usgsAsciiCrawl(usgsAsciiFile, gageList)
+    writeTimeSlices (ncFile, outFolder, timeBins, stationLists, flowLists, timeLists, freq)
 
 
 if __name__ == "__main__":
